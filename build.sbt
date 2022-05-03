@@ -2,7 +2,7 @@ name := "akka-quickstart-java"
 
 version := "1.0"
 
-scalaVersion := "2.13.1"
+scalaVersion := "scala-sdk-2.12.7"
 
 lazy val akkaVersion = "2.6.18"
 
