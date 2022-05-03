@@ -2,8 +2,6 @@ package com.pr3V1;
 
 import akka.actor.AbstractActor;
 import akka.actor.Props;
-import com.ex2.DecrementMessage;
-import com.ex2.IncrementMessage;
 
 public class ProcessActor extends AbstractActor {
 

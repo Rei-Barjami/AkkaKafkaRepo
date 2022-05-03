@@ -4,7 +4,6 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import com.ex2.SeverActor;
 
 import java.util.ArrayList;
 import java.util.Stack;
