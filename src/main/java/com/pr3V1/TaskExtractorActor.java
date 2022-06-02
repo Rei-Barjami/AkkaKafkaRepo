@@ -26,8 +26,8 @@ import scala.concurrent.Future;
 public class TaskExtractorActor extends AbstractActor {
     private ActorRef dispatcher;
     private static final String defaultGroupId = "groupA";
-    private static final String defaultTopic = "topicB";
-
+    private static final String defaultTopic = "topicA";
+    KafkaConsumer<String, TaskMsg> consumer;
     private static final String serverAddr = "localhost:9092";
     private static final boolean autoCommit = true;
     private static final int autoCommitIntervalMs = 15000;
@@ -37,7 +37,7 @@ public class TaskExtractorActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(StartMsg.class, this::onStart).build();
+        return receiveBuilder().match(StartMsg.class, this::onStart).match(TaskDispatchedMsg.class, this::onDispatched).build();
     }
 
     public TaskExtractorActor(){
@@ -46,17 +46,39 @@ public class TaskExtractorActor extends AbstractActor {
     }
 
 
+    void onDispatched(TaskDispatchedMsg msg){
+        if(msg.getDispatched())
+            System.out.println("dispatched correctly");
+        else
+            System.out.println("not dispatched");
+
+    }
+
     //method on which the actor extracts tasks from the kafka queue and calls dispatcher to execute them
     //when dispatcher says that no processor is idle the method stops, and gets again invoked when the dispatcher notifies
     //that a process is idle
     void onStart(StartMsg msg) {
-        TaskDispatchedMsg futureMsg;
-        boolean stop=false;
-        while(!stop){
-            //CODE TO EXTRACT FROM KAFKA THE TASK
-            TaskMsg msg2= getMsg();
+        final Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
+        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
 
-            dispatcher.tell(msg2,self());
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
+
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JavaDeserializer.class.getName());
+
+        consumer = new KafkaConsumer<>(props);
+
+        consumer.subscribe(Collections.singletonList(defaultTopic));
+
+        TaskDispatchedMsg futureMsg;
+
+        boolean stop=false;
+
+        while(!stop){
+            TaskMsg msg2= getMsg();            //CODE TO EXTRACT FROM KAFKA THE TASK
             //use ask pattern to wait for a response from the dispatcher
             Timeout t = new Timeout(3600, TimeUnit.SECONDS);
             Future<Object> fut = Patterns.ask(dispatcher, msg2, t);
@@ -72,29 +94,11 @@ public class TaskExtractorActor extends AbstractActor {
             stop=response.getDispatched();
 
             System.out.println(response);
+
         }
     }
 
     public TaskMsg getMsg(){
-        // If there are arguments, use the first as group and the second as topic.
-        // Otherwise, use default group and topic.
-        String groupId = defaultGroupId;
-        String topic = defaultTopic;
-
-        final Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
-        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
-
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
-
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-
-        KafkaConsumer<String, TaskMsg> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singletonList(topic));
-
         while (true) {
             final ConsumerRecords<String, TaskMsg> records = consumer.poll(Duration.of(5, ChronoUnit.MINUTES));
             for (final ConsumerRecord<String, TaskMsg> record : records) {

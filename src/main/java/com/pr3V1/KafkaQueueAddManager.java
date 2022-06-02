@@ -13,22 +13,16 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 public class KafkaQueueAddManager {
-    private static final String defaultTopic = "topicB";
+    private static final String defaultTopic = "topicA";
 
     private static final int numMessages = 100000;
-    private static final int waitBetweenMsgs = 500;
-    private static final boolean waitAck = true;
 
     private static final String serverAddr = "localhost:9092";
 
     public static void main(String[] args) {
-        final ActorSystem sys = ActorSystem.create("System");
-        final ActorRef server = sys.actorOf(TaskExtractorActor.props(), "dispatcher");
-        server.tell(new StartMsg(),ActorRef.noSender());
 
         Scanner sc= new Scanner(System.in);
-        // If there are no arguments, publish to the default topic
-        // Otherwise publish on the topics provided as argument
+
         List<String> topics = args.length < 1 ?
                 Collections.singletonList(defaultTopic) :
                 Arrays.asList(args);
@@ -36,7 +30,7 @@ public class KafkaQueueAddManager {
         final Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JavaSerializer.class.getName());
 
         final KafkaProducer<String, TaskMsg> producer = new KafkaProducer<>(props); //string string are key and value type
         final Random r = new Random();
@@ -58,11 +52,11 @@ public class KafkaQueueAddManager {
             id=sc.nextInt();
 
             if(selection==0)
-                msg = new AudioMerging(time,id);
+                msg = new TaskMsg("AudioMerging",time,id);
             else if(selection==1)
-                msg = new TextFormatting(time,id);
+                msg = new TaskMsg("TextFormatting",time,id);
             else
-                msg = new ImageCompression(time,id);
+                msg = new TaskMsg("ImageCompression",time,id);
 
             final ProducerRecord<String, TaskMsg> record = new ProducerRecord<>(topic, key, msg);
 

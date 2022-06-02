@@ -31,11 +31,11 @@ public class TaskCreatorMain {
             id=sc.nextInt();
 
             if(selection==0)
-                msg = new AudioMerging(time,id);
+                msg = new TaskMsg("AudioMerging",time,id);
             else if(selection==1)
-                msg = new TextFormatting(time,id);
+                msg = new TaskMsg("TextFormatting",time,id);
             else
-                msg = new ImageCompression(time,id);
+                msg = new TaskMsg("ImageCompression",time,id);
 
             server.tell(msg,ActorRef.noSender());
 
