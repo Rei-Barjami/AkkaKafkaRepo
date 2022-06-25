@@ -20,22 +20,26 @@ public class TaskCreatorMain {
         int selection;
         Scanner sc= new Scanner(System.in);
         int time,id;
+        String dir;
         TaskMsg msg;
 
         for (int i = 0; i < numMessages; i++) {
             System.out.println("0 if audio, 1 if text formatting, otherwise image compression: ");
             selection=sc.nextInt();
+            System.out.println("write result directory: ");
+            dir=sc.next();
             System.out.println("write time will take for task: ");
             time=sc.nextInt();
             System.out.println("write task id: ");
             id=sc.nextInt();
 
+
             if(selection==0)
-                msg = new TaskMsg("AudioMerging",time,id);
+                msg = new TaskMsg("AudioMerging",time,id,dir);
             else if(selection==1)
-                msg = new TaskMsg("TextFormatting",time,id);
+                msg = new TaskMsg("TextFormatting",time,id,dir);
             else
-                msg = new TaskMsg("ImageCompression",time,id);
+                msg = new TaskMsg("ImageCompression",time,id,dir);
 
             server.tell(msg,ActorRef.noSender());
 

@@ -9,8 +9,9 @@ import java.util.HashMap;
 public class TaskMsg implements Serializable {
     private String name;
     private String resultDirectory;
-    private int executionTimeSimulation;// this works as the payload, we pass the amount of time we think the execution will take,
+    private int executionTimeSimulation;// we pass the amount of time we think the execution will take,
     // for simulation purpose
+    private byte[] load;
     private int id;
 
     public String getName() {
@@ -18,12 +19,14 @@ public class TaskMsg implements Serializable {
     }
 
     public TaskMsg(){
-
     }
-    public TaskMsg(String name,int time,int id){
+
+    public TaskMsg(String name,int time,int id, String dir){
+        this.resultDirectory = dir;
         this.name = name;
         executionTimeSimulation = time;
         this.id = id;
+        load = new byte[100];
     }
 
     public void setName(String name) {

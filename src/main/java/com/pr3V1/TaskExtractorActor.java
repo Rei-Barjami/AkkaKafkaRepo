@@ -25,19 +25,42 @@ import scala.concurrent.Future;
 
 public class TaskExtractorActor extends AbstractActor {
     private ActorRef dispatcher;
+    private Boolean firstStart=true;
     private static final String defaultGroupId = "groupA";
     private static final String defaultTopic = "topicA";
     KafkaConsumer<String, TaskMsg> consumer;
     private static final String serverAddr = "localhost:9092";
     private static final boolean autoCommit = true;
-    private static final int autoCommitIntervalMs = 15000;
+    private static final int autoCommitIntervalMs = 10000;
 
     // Default is "latest": try "earliest" instead
-    private static final String offsetResetStrategy = "latest";
+    private static final String offsetResetStrategy = "earliest";
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(StartMsg.class, this::onStart).match(TaskDispatchedMsg.class, this::onDispatched).build();
+        return receiveBuilder().match(StartMsg.class, this::onStart).match(TaskDispatchedMsg.class, this::onDispatched).match(TestMsg.class,this::onTest).build();
+    }
+
+    public void preStart(){
+        final Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
+        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
+
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,1);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JavaDeserializer.class.getName());
+
+        consumer = new KafkaConsumer<>(props);
+
+        consumer.subscribe(Collections.singletonList(defaultTopic));
+
+        ActorRef s = self();
+        dispatcher.tell(new MsgRef(s),self());
+        firstStart =false;
+
     }
 
     public TaskExtractorActor(){
@@ -45,6 +68,10 @@ public class TaskExtractorActor extends AbstractActor {
         this.dispatcher = sys.actorOf(DispatcherActor.props(), "dispatcher");
     }
 
+
+    void onTest(TestMsg msg){
+        System.out.println("the test works fine");
+    }
 
     void onDispatched(TaskDispatchedMsg msg){
         if(msg.getDispatched())
@@ -58,23 +85,6 @@ public class TaskExtractorActor extends AbstractActor {
     //when dispatcher says that no processor is idle the method stops, and gets again invoked when the dispatcher notifies
     //that a process is idle
     void onStart(StartMsg msg) {
-        final Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
-        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
-
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
-
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JavaDeserializer.class.getName());
-
-        consumer = new KafkaConsumer<>(props);
-
-        consumer.subscribe(Collections.singletonList(defaultTopic));
-
-        TaskDispatchedMsg futureMsg;
-
         boolean stop=false;
 
         while(!stop){
@@ -90,11 +100,7 @@ public class TaskExtractorActor extends AbstractActor {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
             stop=response.getDispatched();
-
-            System.out.println(response);
-
         }
     }
 
