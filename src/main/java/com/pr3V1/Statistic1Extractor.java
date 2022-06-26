@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-public class StatisticExtractor {
+public class Statistic1Extractor {
 
     final static String defaultGroupId = "groupA";
     final static String defaultTopic = "completedTasks";

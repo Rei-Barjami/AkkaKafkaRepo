@@ -12,7 +12,7 @@ public class TaskMsg implements Serializable {
     private int executionTimeSimulation;// we pass the amount of time we think the execution will take,
     // for simulation purpose
     private byte[] load;
-    private int id;
+    private String id;
 
     public String getName() {
         return name;
@@ -21,7 +21,7 @@ public class TaskMsg implements Serializable {
     public TaskMsg(){
     }
 
-    public TaskMsg(String name,int time,int id, String dir){
+    public TaskMsg(String name,int time,String id, String dir){
         this.resultDirectory = dir;
         this.name = name;
         executionTimeSimulation = time;
@@ -49,11 +49,11 @@ public class TaskMsg implements Serializable {
         this.executionTimeSimulation = executionTimeSimulation;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 }

@@ -19,8 +19,8 @@ public class TaskCreatorMain {
 
         int selection;
         Scanner sc= new Scanner(System.in);
-        int time,id;
-        String dir;
+        int time;
+        String id,dir;
         TaskMsg msg;
 
         for (int i = 0; i < numMessages; i++) {
@@ -31,7 +31,7 @@ public class TaskCreatorMain {
             System.out.println("write time will take for task: ");
             time=sc.nextInt();
             System.out.println("write task id: ");
-            id=sc.nextInt();
+            id=sc.next();
 
 
             if(selection==0)
