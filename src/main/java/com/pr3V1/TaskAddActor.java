@@ -1,31 +1,39 @@
 package com.pr3V1;
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
+import akka.actor.AbstractActor;
+import akka.actor.Props;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-public class KafkaQueueAddManager {
+public class TaskAddActor extends AbstractActor {
     private static final String defaultTopic = "topicA";
-    private static final int numMessages = 100;
     private static final String serverAddr = "localhost:9092";
     private final Random r = new Random();
     private KafkaProducer<String, TaskMsg> producer;
-    public KafkaQueueAddManager(){
+
+    @Override
+    public Receive createReceive() {
+        return receiveBuilder().match(TaskMsg.class, this::onTaskReceive).build();
+    }
+
+    public TaskAddActor(){
+    }
+
+    public void preStart(){
         final Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JavaSerializer.class.getName());
-
         this.producer = new KafkaProducer<>(props); //string string are key and value type
 
+    }
+    public void onTaskReceive(TaskMsg taskMsg){
+        addTask(taskMsg);
     }
 
     public void addTask(TaskMsg msg) {
@@ -42,6 +50,8 @@ public class KafkaQueueAddManager {
             System.out.println("sent number :"+key);
 
     }
-
+    static Props props() {
+        return Props.create(com.pr3V1.TaskAddActor.class);
+    }
 
 }
