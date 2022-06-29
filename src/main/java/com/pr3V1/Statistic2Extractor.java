@@ -69,12 +69,12 @@ public class Statistic2Extractor {
 
         while (true) {
             TimeUnit.SECONDS.sleep(5);
-            final ConsumerRecords<String, TaskMsg> records = consumerRequested.poll(Duration.of(1, ChronoUnit.SECONDS));
+            final ConsumerRecords<String, TaskMsg> records = consumerRequested.poll(Duration.of(10, ChronoUnit.SECONDS));
             for (final ConsumerRecord<String, TaskMsg> record : records) {
                 TaskMsg tmp=record.value();
                 idsPending.add(tmp.getId()); //add from the kafka queue of requested
             }
-            final ConsumerRecords<String, CompletitionOfTaskMsg> records2 = consumerCompleted.poll(Duration.of(1, ChronoUnit.SECONDS));
+            final ConsumerRecords<String, CompletitionOfTaskMsg> records2 = consumerCompleted.poll(Duration.of(10, ChronoUnit.SECONDS));
             for (final ConsumerRecord<String, CompletitionOfTaskMsg> record : records2) {
                 if(record.value()!=null) {
                     CompletitionOfTaskMsg tmp = record.value();

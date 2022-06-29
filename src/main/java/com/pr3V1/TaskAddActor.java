@@ -45,9 +45,7 @@ public class TaskAddActor extends AbstractActor {
 
             final Future<RecordMetadata> future = this.producer.send(record);
             while(!future.isDone()){
-                System.out.println("waiting");
             }
-            System.out.println("sent number :"+key);
 
     }
     static Props props() {

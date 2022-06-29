@@ -58,7 +58,7 @@ public class Statistic1Extractor {
 
         while (true) {
             TimeUnit.MINUTES.sleep(1);
-            final ConsumerRecords<String, CompletitionOfTaskMsg> records = consumer.poll(Duration.of(1, ChronoUnit.MINUTES));
+            final ConsumerRecords<String, CompletitionOfTaskMsg> records = consumer.poll(Duration.of(10, ChronoUnit.SECONDS));
             for (final ConsumerRecord<String, CompletitionOfTaskMsg> record : records) {
                 CompletitionOfTaskMsg tmp=record.value();
                 updateCompletedStatistics(tmp);

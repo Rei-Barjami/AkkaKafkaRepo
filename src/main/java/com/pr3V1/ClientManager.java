@@ -3,11 +3,22 @@ package com.pr3V1;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 
-public class ClientManager {
 
+
+public class ClientManager {
+    final static ActorSystem sys = ActorSystem.create("System");
+    final static ActorRef tAddManager = sys.actorOf(TaskAddActor.props(), "process1");
+    final static ActorRef notificationHandler = sys.actorOf(TaskCompletitionActor.props(), "process2");
+
+    public static ActorRef getRefAdder(){
+        return tAddManager;
+    }
+    public static ActorRef getHandlerAdder(){
+        return notificationHandler;
+    }
     public static void main(String []args){
-        final ActorSystem sys = ActorSystem.create("System");
-        final ActorRef tAddManager = sys.actorOf(TaskAddActor.props(), "process1");
+        //notificationHandler.tell(new StartMsg(),null);
+        /**
 
         int []times= {300,100,1000,500,650};
         int userId=1;
@@ -79,6 +90,13 @@ public class ClientManager {
         thread.start();
         thread2.start();
         thread3.start();
+        */
+        final ActorRef client1 = sys.actorOf(ClientManagerActor.props(), "process3");
+        final ActorRef client2 = sys.actorOf(ClientManagerActor.props(), "process4");
+        final ActorRef client3 = sys.actorOf(ClientManagerActor.props(), "process5");
+        //final ActorRef client4 = sys.actorOf(ClientManagerActor.props(), "process6");
+        //final ActorRef client5 = sys.actorOf(ClientManagerActor.props(), "process7");
+        //final ActorRef client6 = sys.actorOf(ClientManagerActor.props(), "process8");
 
     }
 }
