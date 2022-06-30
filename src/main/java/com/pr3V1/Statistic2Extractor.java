@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Statistic2Extractor {
 
-    final static String defaultGroupId = "groupA";
-    final static String defaultGroupId2 = "groupB";
+    final static String defaultGroupId = "GroupStat2a";
+    final static String defaultGroupId2 = "GroupStat2b";
 
     final static String topicCompleted = "completedTasks";
     final static String topicRequired = "topicA";

@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Statistic1Extractor {
 
-    final static String defaultGroupId = "groupA";
+    final static String defaultGroupId = "GroupStat1";
     final static String defaultTopic = "completedTasks";
     static KafkaConsumer<String, CompletitionOfTaskMsg> consumer;
     final static String serverAddr = "localhost:9092";

@@ -33,7 +33,7 @@ public class ClientManagerActor extends AbstractActor {
 
     public void startService(StartMsg sMsg){
         this.id = sMsg.getId();
-        int []times= {3000,1000,10000,5000,6500};
+        int []times= {1500,500,5000,2500,3250};
         String []directories = {"dir1","dir2","dir3"};
         Random r= new Random();
         for(int i=0;i<100;i++) {
@@ -46,6 +46,7 @@ public class ClientManagerActor extends AbstractActor {
             String dir;
             dir = directories[r.nextInt(3)];
             time = times[r.nextInt(5)];
+
             id = ""+this.id+"-" + i;
             if (selection == 0)
                 msg = new TaskMsg("AudioMerging", time, id, dir);

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class TaskCompletitionActor extends AbstractActor {
     private int idCount=1;
     private HashMap<String, ActorRef> clientsToNotify = new HashMap<>();
-    private final  String defaultGroupId = "groupA";
+    private final  String defaultGroupId = "groupNotificator";
     private final  String defaultTopic = "completedTasks";
     private KafkaConsumer<String, CompletitionOfTaskMsg> consumer;
     private final String serverAddr = "localhost:9092";

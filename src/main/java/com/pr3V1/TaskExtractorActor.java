@@ -26,7 +26,7 @@ import scala.concurrent.Future;
 public class TaskExtractorActor extends AbstractActor {
     private ActorRef dispatcher;
     private Boolean firstStart=true;
-    private static final String defaultGroupId = "groupA";
+    private static final String defaultGroupId = "groupExtractor";
     private static final String defaultTopic = "topicA";
     KafkaConsumer<String, TaskMsg> consumer;
     private static final String serverAddr = "localhost:9092";
